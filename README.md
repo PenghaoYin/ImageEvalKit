@@ -2,7 +2,7 @@
 
 > A unified, efficient, and extensible evaluation toolkit for image generation models
 
-[中文文档](./README_zh.md) | [English](./README.md) | [Quick Start](#-quick-start) |
+[⚡ Quick Start](#-quick-start) | [中文文档](./README_zh.md) | [English](./README.md) 
 
 ---
 
