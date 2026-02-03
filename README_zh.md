@@ -54,7 +54,7 @@
 
 # 快速开始
 
-下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `GenEval`（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`）。
+下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `Nano Banana Pro` 在 `GenEval` 上的表现（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`）。
 
 ```bash
 bash eval.sh --model_names gemini-3-pro-image-preview --ds_names geneval --infer true --eval true

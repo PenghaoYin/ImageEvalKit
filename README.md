@@ -62,7 +62,7 @@ To address this issue, we developed **ImageEvalKit**—a general-purpose evaluat
 
 ## ⚡ Quick Start
 
-A minimal runnable example to evaluate `GenEval` via an **OpenAI-compatible API**. Configure `API_KEY` in `config.sh` (and `BASE_URL` if you use a custom endpoint), then run:
+A minimal runnable example to evaluate `Nano Banana Pro`'s performance on `GenEval` via an **OpenAI-compatible API**. Configure `API_KEY` in `config.sh` (and `BASE_URL` if you use a custom endpoint), then run:
 
 ```bash
 bash eval.sh --model_names gemini-3-pro-image-preview --ds_names geneval --infer true --eval true
