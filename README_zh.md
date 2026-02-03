@@ -4,12 +4,15 @@
 
 为了解决这一问题，我们开发了 **ImageEvalKit** —— 一个通用的图像生成模型评测工具包。它提供统一的评测入口与配置方式，支持多模型、多 benchmark 的并行评测，并提供简单易扩展的接口，方便你添加新的模型和 benchmark。
 
+快速开始：[`快速开始`](#快速开始)
+
 ---
 
 ## 目录
 
 - [功能特性](#功能特性)
 - [快速开始](#快速开始)
+- [使用指南](#使用指南)
   - [环境配置](#环境配置)
   - [启动命令](#启动命令)
     - [一、配置参数说明](#一配置参数说明)
@@ -51,13 +54,23 @@
 
 # 快速开始
 
+下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `GenEval`（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`）。
+
+```bash
+bash eval.sh --model_names gemini-3-pro-image-preview --ds_names geneval --infer true --eval true
+```
+
+---
+
+# 使用指南
+
 ## 环境配置
 
-请根据你**计划评测的模型和 benchmark**，在 `requirements/` 目录下找到对应的环境依赖文件，并创建相应的环境。例如，假设你需要评测的模型是 `Bagel`，benchmark 是 `GenExam`，则可以执行：
+请根据你**计划评测的模型和 benchmark**，在 `requirements/` 目录下找到对应的环境依赖文件，并创建相应的环境。例如，假设你需要评测的模型是 `Bagel`，benchmark 是 `GenEval`，则可以执行：
 
 ```bash
 pip install -r requirements/model/bagel.txt
-pip install -r requirements/benchmark/t2i/genexam.txt
+pip install -r requirements/benchmark/t2i/geneval.txt
 ```
 
 ---

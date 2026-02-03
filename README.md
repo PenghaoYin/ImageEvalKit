@@ -2,7 +2,7 @@
 
 > A unified, efficient, and extensible evaluation toolkit for image generation models
 
-[中文文档](./README_zh.md) | [English](./README.md)
+[中文文档](./README_zh.md) | [English](./README.md) | [Quick Start](#-quick-start) |
 
 ---
 
@@ -17,7 +17,8 @@ To address this issue, we developed **ImageEvalKit**—a general-purpose evaluat
 ## 📑 Contents
 
 - [✨ Key Features](#-key-features)
-- [🚀 Quick Start](#-quick-start)
+- [⚡ Quickstart](#-quick-start)
+- [🚀 Usage Guide](#-usage-guide)
   - [Environment Setup](#environment-setup)
   - [Launch Command](#launch-command)
     - [1. Parameter Configuration Reference](#1-parameter-configuration-reference)
@@ -59,15 +60,25 @@ To address this issue, we developed **ImageEvalKit**—a general-purpose evaluat
 
 ---
 
-## 🚀 Quick Start
+## ⚡ Quick Start
+
+A minimal runnable example to evaluate `GenEval` via an **OpenAI-compatible API**. Configure `API_KEY` in `config.sh` (and `BASE_URL` if you use a custom endpoint), then run:
+
+```bash
+bash eval.sh --model_names gemini-3-pro-image-preview --ds_names geneval --infer true --eval true
+```
+
+---
+
+## 🚀 Usage Guide
 
 ### Environment Setup
 
-Depending on the **models and benchmarks you plan to evaluate**, locate the corresponding dependency files under `requirements/` and create the appropriate environments. For example, if the model is `Bagel` and the benchmark is `GenExam`, you may run:
+Depending on the **models and benchmarks you plan to evaluate**, locate the corresponding dependency files under `requirements/` and create the appropriate environments. For example, if the model is `Bagel` and the benchmark is `GenEval`, you may run:
 
 ```bash
 pip install -r requirements/model/bagel.txt
-pip install -r requirements/benchmark/t2i/genexam.txt
+pip install -r requirements/benchmark/t2i/geneval.txt
 ```
 
 ---
@@ -406,6 +417,15 @@ If you find this toolkit helpful, please consider starring the repository! ⭐
       <sub>🚀 Core Contributor</sub>
     </td>
     <td align="center" width="180">
+      <a href="https://github.com/ChangyaoTian">
+        <img src="https://github.com/ChangyaoTian.png?size=120" width="96" height="96" alt="ChangyaoTian" />
+        <br />
+        <sub><b>Changyao Tian</b></sub>
+      </a>
+      <br />
+      <sub>💡 Contributor</sub>
+    </td>
+    <td align="center" width="180">
       <a href="https://github.com/nini0919">
         <img src="https://github.com/nini0919.png?size=120" width="96" height="96" alt="nini0919" />
         <br />
@@ -419,15 +439,6 @@ If you find this toolkit helpful, please consider starring the repository! ⭐
         <img src="https://github.com/Ganlin-Yang.png?size=120" width="96" height="96" alt="Ganlin-Yang" />
         <br />
         <sub><b>Ganlin Yang</b></sub>
-      </a>
-      <br />
-      <sub>💡 Contributor</sub>
-    </td>
-    <td align="center" width="180">
-      <a href="https://github.com/ChangyaoTian">
-        <img src="https://github.com/ChangyaoTian.png?size=120" width="96" height="96" alt="ChangyaoTian" />
-        <br />
-        <sub><b>Changyao Tian</b></sub>
       </a>
       <br />
       <sub>💡 Contributor</sub>
