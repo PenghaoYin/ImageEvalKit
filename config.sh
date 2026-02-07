@@ -33,6 +33,8 @@ TRANSFORMERS_OFFLINE=1
 # 8. # Environment Names Used During Inference and Evaluation (If there are multiple environments, it is recommended to separate them with spaces in the string)
 declare -gA INFER_ENV_MAP
 INFER_ENV_MAP=(
+  ['gpt-image-1.5']=''
+  ['gemini-3-pro-image-preview']=''
   ['bagel']=''
   ['lumina-dimoo']=''
   ['ovis-u1']=''
