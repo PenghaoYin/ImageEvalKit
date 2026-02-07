@@ -15,8 +15,8 @@ import importlib
 MODEL_SETTINGS = {
     # ===================== t2i =====================
     "t2i": {
-        "gpt-image-1":{ # An example of online model API, no local checkpoint needed
-            "model_path": "GPT-Image-1",
+        "gpt-image-1.5":{ # An example of online model API, no local checkpoint needed
+            "model_path": "GPT-Image-1.5",
             "module": ".model_utils.openai_api_t2i",
             "class": "OpenAIAPIT2I",
             "model_kwargs": {},

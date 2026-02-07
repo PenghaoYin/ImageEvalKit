@@ -54,10 +54,10 @@
 
 # 快速开始
 
-下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `Nano Banana Pro` 在 `GenEval` 上的表现（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`）。
+下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `GPT-Image-1.5` 在 `Imgedit` 上的表现（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`。 此外还需要在config.sh的`CONDA_BASE="YOUR_CONDA_PATH_HERE"`填写你的conda base，在`['gpt-image-1.5']=''`和`['imgedit']=''`中分别配置好inference和eval需要使用的环境（一个安装了openai库的环境））。
 
 ```bash
-bash eval.sh --model_names gemini-3-pro-image-preview --ds_names geneval --infer true --eval true
+bash eval.sh --model_names "gpt-image-1.5" --ds_names "imgedit" --infer true --eval false
 ```
 
 ---

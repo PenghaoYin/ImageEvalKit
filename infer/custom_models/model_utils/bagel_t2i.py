@@ -201,14 +201,14 @@ class BagelT2I:
 
 if __name__ == '__main__':
     # prompt = 'a car made of small cars'
-    # bagel = BagelT2I(generate_with_think=True)
+    # bagel = BagelT2I(model_path='...', generate_with_think=True)
 
     # output_bagel = bagel.generate(prompt=prompt)
 
     # output_bagel.save('test_output/output_bagel_t2i.png')
 
     prompt = "Spongebob depicted in the style of Dragon Ball Z."
-    bagel = BagelT2I(generate_with_think=True)
+    bagel = BagelT2I(model_path='...', generate_with_think=True)
 
     output_bagel = bagel.generate(prompt=prompt)
 

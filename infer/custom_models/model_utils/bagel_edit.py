@@ -217,7 +217,7 @@ if __name__ == '__main__':
     prompt = 'Create a scene where the women in the second image is seeing the billboard in the first image.'
     input_list = [image1, image2, prompt]
 
-    bagel = BagelEdit(model_path='../checkpoints/BAGEL-7B-MoT', generate_with_think=True)
+    bagel = BagelEdit(model_path='...', generate_with_think=True)
     output_bagel = bagel.generate(input_list=input_list)
 
     output_bagel.save('test_output/output_bagel_think_edit.png')
