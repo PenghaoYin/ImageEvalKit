@@ -15,18 +15,6 @@ import importlib
 MODEL_SETTINGS = {
     # ===================== t2i =====================
     "t2i": {
-        "gpt-image-1.5":{ # An example of online model API, no local checkpoint needed
-            "model_path": "GPT-Image-1.5",
-            "module": ".model_utils.openai_api_t2i",
-            "class": "OpenAIAPIT2I",
-            "model_kwargs": {},
-        },
-        "nano-banana-pro":{
-            "model_path": "gemini-3-pro-image-preview",
-            "module": ".model_utils.openai_api_t2i",
-            "class": "OpenAIAPIT2I",
-            "model_kwargs": {},
-        },
         "ovis-u1": {
             "model_path": os.path.join(file_dir, "checkpoints/Ovis-U1-3B"),
             "module": ".model_utils.ovis_u1_t2i",
@@ -67,18 +55,6 @@ MODEL_SETTINGS = {
 
     # ===================== edit =====================
     "edit": {
-        "gpt-image-1":{ # An example of online model API, no local checkpoint needed
-            "model_path": "GPT-Image-1",
-            "module": ".model_utils.openai_api_edit",
-            "class": "OpenAIAPIEdit",
-            "model_kwargs": {},
-        },
-        "nano-banana-pro":{
-            "model_path": "gemini-3-pro-image-preview",
-            "module": ".model_utils.openai_api_edit",
-            "class": "OpenAIAPIEdit",
-            "model_kwargs": {},
-        },
         "ovis-u1": {
             "model_path": os.path.join(file_dir, "checkpoints/Ovis-U1-3B"),
             "module": ".model_utils.ovis_u1_edit",

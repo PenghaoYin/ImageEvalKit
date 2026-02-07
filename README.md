@@ -62,10 +62,19 @@ To address this issue, we developed **ImageEvalKit**—a general-purpose evaluat
 
 ## ⚡ Quick Start
 
-A minimal runnable example to evaluate `GPT-Image-1.5`'s performance on `Imgedit` via an **OpenAI-compatible API**. Configure `API_KEY` in `config.sh` (and `BASE_URL` if you use a custom endpoint), then run:
+A minimal runnable example to evaluate `GPT-Image-1.5`'s performance on `Imgedit` via an **OpenAI-compatible API**
 
+### Prerequisites
+Before running, ensure you have completed the following configurations in `config.sh`:
+1. **API Configuration**: Fill in your `API_KEY` (and `BASE_URL` if you are using a custom API gateway).
+2. **Path Configuration**: Set `CONDA_BASE` to your conda installation path.
+3. **Environment Mapping**:
+   - In `INFER_ENV_MAP`, assign an inference environment for `gpt-image-1.5` (ensure the `openai` library and its dependencies are installed).
+   - In `EVAL_ENV_MAP`, assign an evaluation environment for `imgedit` (requires installation via `pip install -r requirements/benchmark/edit/imgedit.txt`).
+
+### Run Command
 ```bash
-bash eval.sh --model_names "gpt-image-1.5" --ds_names "imgedit" --infer true --eval false
+bash eval.sh --model_names "gpt-image-1.5" --ds_names "imgedit" --use_api true --num_workers 4 --infer true --eval true
 ```
 
 ---
@@ -99,6 +108,10 @@ The table below lists the key parameters in `config.sh`, whether they can be ove
 |----------|------------------------|-------------|---------|
 | `DS_NAMES` | ✅ Yes | List of benchmark names to evaluate. Multiple benchmarks are space-separated. If passed via `--ds_names`, the command-line value overrides `config.sh`. | `DS_NAMES=('genai' 'wiseedit')` |
 | `MODEL_NAMES` | ✅ Yes | List of model names to evaluate. Multiple models are space-separated. If passed via `--model_names`, the command-line value overrides `config.sh`. | `MODEL_NAMES=('bagel' 'qwen-image')` |
+| `CUSTOM_MODEL_KWARGSES` | ✅ Yes | Pass custom parameters for each model, semicolon-separated. | `--custom_model_kwargses "p1=v1;p2=v2"` |
+| `USE_API` | ✅ Yes | Whether to use API for inference. | `--use_api true` |
+| `NUM_WORKERS` | ✅ Yes | Number of workers for API inference. Only works when `USE_API=true` | `--num_workers 4` |
+| `PARALLEL` | ✅ Yes | Whether to enable **parallel evaluation** across model × benchmark combinations. `true` can increase throughput but requires sufficient GPU memory. Currently configurable only in `config.sh`. | `--parallel true` |
 | `ENABLE_INFER` | ✅ Yes | Whether to run the inference stage (image generation). If inference outputs already exist, set to `false` to run evaluation only. Can be overridden by `--infer`. | `ENABLE_INFER=true` |
 | `ENABLE_EVAL` | ✅ Yes | Whether to run the evaluation stage (metric computation). Can be overridden by `--eval`. | `ENABLE_EVAL=true` |
 | `API_KEY` | ❌ No | API key used by benchmarks that rely on external APIs. Currently configurable only in `config.sh`. | `API_KEY="your_api_key_here"` |
@@ -113,12 +126,11 @@ The table below lists the key parameters in `config.sh`, whether they can be ove
 | `INFER_ENV_MAP` | ❌ No | Mapping from model name to conda environment name for the **inference stage**. Keys are model names and values are inference environment names. Currently configurable only in `config.sh`. | `INFER_ENV_MAP=(['bagel']='bagel-env' ['qwen-image']='qwen-image-env')` |
 | `EVAL_ENV_MAP` | ❌ No | Mapping from benchmark name to conda environment name(s) for the **evaluation stage**. If multiple environments are required, separate them with spaces. | `EVAL_ENV_MAP=(['genai']='yph-genai' ['wiseedit']='yph-risebench')` |
 | `EVAL_GPU_MAP` | ❌ No | Number of GPUs required by each benchmark during the **evaluation stage**. Keys are benchmark names and values are GPU counts; `0` indicates no GPU usage (e.g., API-only evaluation). Used primarily to inform schedulers (e.g., `srun`) about required GPU resources. | `EVAL_GPU_MAP=(['genai']=1 ['gedit']=0 ['cvtg']=1)` |
-| `PARALLEL` | ❌ No | Whether to enable **parallel evaluation** across model × benchmark combinations. `true` can increase throughput but requires sufficient GPU memory. Currently configurable only in `config.sh`. | `PARALLEL=false` |
 | `GENERATE_BLANK_IMAGE_ON_ERROR` | ❌ No | If an exception occurs during inference, whether to automatically generate a **blank placeholder image** to prevent a single failed sample from interrupting the entire evaluation run. Configurable only in `config.sh`. | `GENERATE_BLANK_IMAGE_ON_ERROR=false` |
 
 > 💡 **Note:**  
-> - “Command-line override” means that when the corresponding argument is provided (e.g., `--ds_names` / `--model_names` / `--enable_infer` / `--enable_eval`), the **command-line value takes precedence** over `config.sh`.  
-> - Currently, only `DS_NAMES`, `MODEL_NAMES`, `ENABLE_INFER`, and `ENABLE_EVAL` can be overridden via the command line; all other parameters must be modified in `config.sh`.
+> - “Command-line override” means that when the corresponding argument is provided (e.g., `--ds_names genexam` / `--model_names internvl-u` ), the **command-line value takes precedence** over `config.sh`.  
+> - Other parameters must be modified in `config.sh`.
 
 ---
 
@@ -132,7 +144,7 @@ The overall priority order is:
 
 2. Command-line arguments:  
    - Used to temporarily change evaluation scope (e.g., evaluating only a subset of models or benchmarks).  
-   - Effective only for parameters that support overriding: `ds_names`, `model_names`, `enable_infer`, and `enable_eval`.
+   - Effective only for parameters that support overriding: `ds_names`, `model_names`, `infer`, and `eval`.
 
 If the same parameter is specified in both places, **the command-line argument takes precedence** and overrides the corresponding entry in `config.sh`.
 
@@ -144,7 +156,7 @@ Example:
   ```
 - In the command line:  
   ```bash
-  --ds_names "wiseedit,gedit"
+  --ds_names "wiseedit;gedit"
   ```
 
 Then the benchmarks evaluated in this run will be `wiseedit` and `gedit`.
@@ -178,23 +190,18 @@ If you prefer not to modify `config.sh` and only want to change the evaluation s
 
 ```bash
 bash eval.sh \
-  --ds_names "wiseedit,gedit" \
-  --model_names "bagel,qwen-image" \
-  --custom_model_kwargses "" \
-  --enable_infer true \
-  --enable_eval true \
+  --ds_names "wiseedit;gedit" \
+  --model_names "bagel;qwen-image" \
+  --custom_model_kwargses ";" \
+  --infer true \
+  --eval true \
 ```
 
 This command means:
 
 - Evaluate only the two models `bagel` and `qwen-image`.  
 - Evaluate the benchmarks `wiseedit` and `gedit`.  
-- Run both inference (`enable_infer=true`) and evaluation (`enable_eval=true`) regardless of the defaults in `config.sh`.
-
-Important notes:
-
-- Only `ds_names`, `model_names`, `enable_infer`, and `enable_eval` can be overridden by the command line.  
-- **Environment mappings** (`INFER_ENV_MAP` / `EVAL_ENV_MAP`) and **per-benchmark GPU requirements** (`EVAL_GPU_MAP`) are still fully determined by `config.sh` and cannot be changed via command-line arguments.
+- Run both inference (`infer=true`) and evaluation (`eval=true`) regardless of the defaults in `config.sh`.
 
 ---
 

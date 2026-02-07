@@ -54,10 +54,17 @@
 
 # 快速开始
 
-下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `GPT-Image-1.5` 在 `Imgedit` 上的表现（需要你在 `config.sh` 中提前配置 `API_KEY`，如需自定义服务地址则同时配置 `BASE_URL`。 此外还需要在config.sh的`CONDA_BASE="YOUR_CONDA_PATH_HERE"`填写你的conda base，在`['gpt-image-1.5']=''`和`['imgedit']=''`中分别配置好inference和eval需要使用的环境（一个安装了openai库的环境））。
+下面给出一个**可直接运行**的示例：通过 **OpenAI API 兼容接口**直接评测 `GPT-Image-1.5` 在 `Imgedit` 上的表现
 
+### 运行前提
+在执行命令前，请确保在 `config.sh` 中完成以下配置：
+1. **API 配置**：填写 `API_KEY`（如使用自定义网关，还需填写 `BASE_URL`）。
+2. **路径配置**：填写 `CONDA_BASE` 为你的 conda 安装路径。
+3. **环境映射**：在 `INFER_ENV_MAP` 中为 `gpt-image-1.5` 指定环境（需安装 `openai` 库及其依赖），在 `EVAL_ENV_MAP` 中为 `imgedit` 指定环境（需通过 `pip install -r requirements/benchmark/edit/imgedit.txt` 配置）。
+
+### 执行命令
 ```bash
-bash eval.sh --model_names "gpt-image-1.5" --ds_names "imgedit" --infer true --eval false
+bash eval.sh --model_names "gpt-image-1.5" --ds_names "imgedit" --use_api true --num_workers 4 --infer true --eval true
 ```
 
 ---
@@ -90,6 +97,10 @@ pip install -r requirements/benchmark/t2i/geneval.txt
 |--------|--------------------|------|------|
 | `DS_NAMES` | ✅ 支持 | 需要评测的 benchmark 名称列表。多个 benchmark 使用空格分隔。若通过命令行传入 `--ds_names`，则命令行配置会覆盖此处设置。 | `DS_NAMES=('genai' 'wiseedit')` |
 | `MODEL_NAMES` | ✅ 支持 | 需要评测的模型名称列表。多个模型使用空格分隔。若通过命令行传入 `--model_names`，则命令行配置会覆盖此处设置。 | `MODEL_NAMES=('bagel' 'qwen-image')` |
+| `CUSTOM_MODEL_KWARGSES`| ✅ 支持 | 为每个模型传递自定义参数，用分号分隔。| `--custom_model_kwargses "p1=v1;p2=v2"` |
+| `USE_API` | ✅ 支持 | 推理阶段是否使用 API。 | `--use_api true` |
+| `NUM_WORKERS` | ✅ 支持 | API 推理的并发数，当且仅当 `USE_API=true` 时生效。 | `--num_workers 4` |
+| `PARALLEL` | ✅ 支持 | 是否开启多模型 × 多 benchmark 组合的**并行评测**。`true` 可提升整体吞吐，但要求显存较为充足。当前仅支持在 `config.sh` 中配置。 | `--parallel true` |
 | `ENABLE_INFER` | ✅ 支持 | 是否执行推理阶段（生成图片）。若输出目录下已存在推理结果，可设为 `false`，仅执行评测阶段。可被命令行参数 `--infer` 覆盖。 | `ENABLE_INFER=true` |
 | `ENABLE_EVAL` | ✅ 支持 | 是否执行评测阶段（计算指标）。可被命令行参数 `--eval` 覆盖。 | `ENABLE_EVAL=true` |
 | `API_KEY` | ❌ 不支持 | 评测时调用部分需要 API 的 benchmark 所用的密钥。当前只能在 `config.sh` 中设置，不支持命令行覆盖。 | `API_KEY="your_api_key_here"` |
@@ -104,12 +115,11 @@ pip install -r requirements/benchmark/t2i/geneval.txt
 | `INFER_ENV_MAP` | ❌ 不支持 | **推理阶段**模型名到 conda 环境名的映射。key 为模型名称，value 为该模型使用的推理环境名。目前只能在 `config.sh` 中配置。 | `INFER_ENV_MAP=(['bagel']='bagel-env' ['qwen-image']='qwen-image-env')` |
 | `EVAL_ENV_MAP` | ❌ 不支持 | **评测阶段** benchmark 名称到 conda 环境名的映射。部分 benchmark 需要设置多个环境，此时建议以空格分隔。 | `EVAL_ENV_MAP=(['genai']='yph-genai' ['wiseedit']='yph-risebench')` |
 | `EVAL_GPU_MAP` | ❌ 不支持 | 各 benchmark 在 **评测阶段** 需要使用的 GPU 数量。key 为 benchmark 名称，value 为 GPU 数；`0` 表示不占用 GPU（如纯 API 评测）。主要用于提前告知调度系统（如 `srun` 等）所需的 GPU 数。 | `EVAL_GPU_MAP=(['genai']=1 ['gedit']=0 ['cvtg']=1)` |
-| `PARALLEL` | ❌ 不支持 | 是否开启多模型 × 多 benchmark 组合的**并行评测**。`true` 可提升整体吞吐，但要求显存较为充足。当前仅支持在 `config.sh` 中配置。 | `PARALLEL=false` |
 | `GENERATE_BLANK_IMAGE_ON_ERROR` | ❌ 不支持 | 推理阶段若出现异常，是否自动生成**空白图片占位**，以避免单条数据失败导致整轮评测中断。仅在 `config.sh` 中配置。 | `GENERATE_BLANK_IMAGE_ON_ERROR=false` |
 
 > 说明：  
-> - 「支持命令行覆盖」表示：若在命令行中传入相应参数（如 `--ds_names` / `--model_names` / `--enable_infer` / `--enable_eval`），则**优先使用命令行配置**，忽略 `config.sh` 中对应项；  
-> - 当前仅有 `DS_NAMES`、`MODEL_NAMES`、`ENABLE_INFER`、`ENABLE_EVAL` 支持命令行覆盖，其余均需直接修改 `config.sh`。
+> - 「支持命令行覆盖」表示：若在命令行中传入相应参数（如 `--ds_names genexam` / `--model_names intenvl-u` 等），则**优先使用命令行配置**，忽略 `config.sh` 中对应项；  
+> - 其余参数均需通过直接修改 `config.sh` 的方式来修改。
 
 ---
 
@@ -123,7 +133,7 @@ pip install -r requirements/benchmark/t2i/geneval.txt
 
 2. 命令行参数：  
    - 用于临时修改评测范围（如只想跑某几个模型或某几个 benchmark）；  
-   - 仅对支持覆盖的参数生效：`ds_names`、`model_names`、`enable_infer`、`enable_eval`。
+   - 仅对支持覆盖的参数生效：`ds_names`、`model_names`、`infer`、`eval`。
 
 当同一个参数在两处都设置时，**命令行参数优先级更高**，会覆盖 `config.sh` 中对应项。
 
@@ -135,7 +145,7 @@ pip install -r requirements/benchmark/t2i/geneval.txt
   ```
 - 命令行中：  
   ```bash
-  --ds_names "wiseedit,gedit"
+  --ds_names "wiseedit;gedit"
   ```
 
 则本次运行实际评测的 benchmark 为：`wiseedit` 与 `gedit`。
@@ -169,23 +179,18 @@ bash eval.sh
 
 ```bash
 bash eval.sh \
-  --ds_names "wiseedit,gedit" \
-  --model_names "bagel,qwen-image" \
-  --custom_model_kwargses "" \
-  --enable_infer true \
-  --enable_eval true \
+  --ds_names "wiseedit;gedit" \
+  --model_names "bagel;qwen-image" \
+  --custom_model_kwargses ";" \
+  --infer true \
+  --eval true \
 ```
 
 上述命令的含义：
 
 - 本次只评测 `bagel` 与 `qwen-image` 两个模型；
 - 评测的 benchmark 为 `wiseedit` 与 `gedit`；
-- 无论 `config.sh` 中默认如何配置，本次运行都会同时执行推理（`enable_infer=true`）和评测（`enable_eval=true`）。
-
-需要注意：
-
-- 只有 `ds_names` / `model_names` / `enable_infer` / `enable_eval` 能被命令行覆盖；
-- **环境映射**（`INFER_ENV_MAP` / `EVAL_ENV_MAP`）、**每个 benchmark 的 GPU 数量**（`EVAL_GPU_MAP`）等依然完全由 `config.sh` 决定，命令行不会影响这些设置。
+- 无论 `config.sh` 中默认如何配置，本次运行都会同时执行推理（`infer=true`）和评测（`eval=true`）。
 
 ---
 

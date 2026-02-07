@@ -66,6 +66,14 @@ function parse_args() {
                 custom_model_kwargses="$2"
                 shift 2
                 ;;
+            --use_api)
+                USE_API="$2"
+                shift 2
+                ;;
+            --num_workers)
+                NUM_WORKERS="$2"
+                shift 2
+                ;;
             --infer)
                 ENABLE_INFER="$2"
                 shift 2
@@ -85,6 +93,8 @@ function parse_args() {
                 echo "  --ds_names \"wiseedit;gedit\"        Override DS_NAMES in config.sh"
                 echo "  --model_names \"internvl-o;qwen-image\" Override MODEL_NAMES in config.sh"
                 echo "  --custom_model_kwargses [optional] \"p1=v1,p2=v2;p3=v3\" Pass custom parameters for different models"
+                echo "  --use_api true|false               Whether to use API for inference (default: false, which uses GPU)"
+                echo "  --num_workers N                    Number of workers for API inference (default: Your CPU core count, only effective if --use_api is true)"
                 echo "  --infer true|false            Override ENABLE_INFER"
                 echo "  --eval  true|false            Override ENABLE_EVAL"
                 echo "  --parallel     true|false            Override PARALLEL"
@@ -139,21 +149,42 @@ function run_inference_task() {
     local model_name=$1
     local ds_name=$2
     local custom_model_kwargs=$3
+    local use_api=${4:-false}
+    if [ "$use_api" = true ]; then
+        local num_workers=$5
+    fi
     local log_file=$(setup_log_file "${model_name}" "${ds_name}" "inference")
 
-    set_visible_gpus
     echo "Starting Inference Model: ${model_name} Dataset: ${ds_name}" | tee -a "${log_file}"
 
-    local -a infer_cmd=( # Assemble the command yourself, so you can better control the generate_blank_image_on_error parameter
-        "${CONDA_BASE}/envs/${INFER_ENV_MAP[$model_name]}/bin/python"
-        "infer/infer_mp.py"
-        "--model_name" "${model_name}"
-        "--dataset_name" "${ds_name}"
-        "--custom_model_kwargs" "${custom_model_kwargs}"
-    )
+    if [ "$use_api" = true ]; then
+        echo "Using API for inference with ${num_workers} workers" | tee -a "${log_file}"
+        local -a infer_cmd=( # Assemble the command yourself, so you can better control the generate_blank_image_on_error parameter
+            "${CONDA_BASE}/envs/${INFER_ENV_MAP[$model_name]}/bin/python"
+            "infer/infer_mp_api.py"
+            "--model_name" "${model_name}"
+            "--dataset_name" "${ds_name}"
+            "--custom_model_kwargs" "${custom_model_kwargs}"
+        )
+        if [ -n "$num_workers" ]; then
+            infer_cmd+=("--num_workers" "${num_workers}")
+        fi
+    else
+        echo "Using GPU for inference" | tee -a "${log_file}"
+        set_visible_gpus
+        local -a infer_cmd=( # Assemble the command yourself, so you can better control the generate_blank_image_on_error parameter
+            "${CONDA_BASE}/envs/${INFER_ENV_MAP[$model_name]}/bin/python"
+            "infer/infer_mp_gpu.py"
+            "--model_name" "${model_name}"
+            "--dataset_name" "${ds_name}"
+            "--custom_model_kwargs" "${custom_model_kwargs}"
+        )
+    fi
+
     if [ "${GENERATE_BLANK_IMAGE_ON_ERROR}" = "true" ]; then
         infer_cmd+=("--generate_blank_image_on_error")
     fi
+
     "${infer_cmd[@]}" 2>&1 | tee -a "${log_file}"
 
     check_empty_image "${model_name}" "${ds_name}" | tee -a "${log_file}" # Check for empty images
@@ -213,7 +244,7 @@ function main() {
                 for i in {1..1}; do
                     if [ "$ENABLE_INFER" = true ]; then
                         # Step 1: Inference
-                        run_inference_task "${MODEL_NAME}" "${DS_NAME}" "${CUSTOM_MODEL_KWARGS}"
+                        run_inference_task "${MODEL_NAME}" "${DS_NAME}" "${CUSTOM_MODEL_KWARGS}" "${USE_API}" "${NUM_WORKERS}"
                         if [ $? -eq 0 ]; then
                             echo "Inference succeeded: Model=${MODEL_NAME} Dataset=${DS_NAME}, Iteration=$i"
                         else
