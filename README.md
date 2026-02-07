@@ -414,16 +414,7 @@ If you find this toolkit helpful, please consider starring the repository! ⭐
         <sub><b>Penghao Yin</b></sub>
       </a>
       <br />
-      <sub>🚀 Core Contributor</sub>
-    </td>
-    <td align="center" width="180">
-      <a href="https://github.com/ChangyaoTian">
-        <img src="https://github.com/ChangyaoTian.png?size=120" width="96" height="96" alt="ChangyaoTian" />
-        <br />
-        <sub><b>Changyao Tian</b></sub>
-      </a>
-      <br />
-      <sub>💡 Contributor</sub>
+      <sub>🚀 Lead Developer</sub>
     </td>
     <td align="center" width="180">
       <a href="https://github.com/nini0919">
@@ -442,6 +433,15 @@ If you find this toolkit helpful, please consider starring the repository! ⭐
       </a>
       <br />
       <sub>💡 Contributor</sub>
+    </td>
+    <td align="center" width="180">
+      <a href="https://github.com/ChangyaoTian">
+        <img src="https://github.com/ChangyaoTian.png?size=120" width="96" height="96" alt="ChangyaoTian" />
+        <br />
+        <sub><b>Changyao Tian</b></sub>
+      </a>
+      <br />
+      <sub>🎯 Advisor</sub>
     </td>
   </tr>
 </table>
